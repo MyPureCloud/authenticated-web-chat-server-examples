@@ -1,0 +1,17 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.authenticate.server</groupId>
+    <artifactId>example</artifactId>
+    <version>1.0.0</version>
+    
+    <dependencies>
+
+        <!-- https://mvnrepository.com/artifact/com.mypurecloud/platform-client-v2 -->
+        <dependency>
+            <groupId>com.mypurecloud</groupId>
+            <artifactId>platform-client-v2</artifactId>
+            <version>28.0.0</version>
+        </dependency>
+
+    </dependencies>
+</project>
