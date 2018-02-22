@@ -1,0 +1,52 @@
+<html>
+<head></head>
+<body>
+    <input id="start-purecloud-chat" type="button" value="Start Chat"></input>
+    <div id='purecloud-chat-container'></div>
+    <script
+      id="purecloud-webchat-js"
+      type="text/javascript"
+      src="https://apps.mypurecloud.com/webchat/jsapi-v1.js"
+      region="us-east-1"
+      org-guid="YOUR_GUID_HERE"
+      deployment-key="YOUR_KEY_HERE"
+     ></script>
+    <script type="text/javascript">
+        (async () => {
+            window.PURECLOUD_WEBCHAT_FRAME_CONFIG = {
+                containerEl: 'purecloud-chat-container'
+            };
+            try {
+                // Modify as necessary for your org
+                let webchat = await ININ.webchat.create({
+                    webchatAppUrl: 'https://apps.mypurecloud.com/webchat',
+                    webchatServiceUrl: 'https://realtime.mypurecloud.com:443',
+                    orgGuid: '15ef6be3-0251-4b75-a4a3-1b057526ed7d4',
+                    orgId: '1234',
+                    orgName: 'example',
+                    agentEmail: 'joe.agent@example.com',
+                    chatNowElement: 'start-purecloud-chat',
+                    logLevel: 'INFO',
+                    reconnectEnabled: true,
+                    reconnectOrigins: [ 'https://example.com' ]
+                });
+                const startChatButton = document.getElementById('start-purecloud-chat');
+                startChatButton.onclick = onStartChatClick;
+                async function onStartChatClick () {
+                    try {
+                        //await webchat.authenticateGuest();
+                        const containerEl = document.getElementById('purecloud-chat-container');
+                        const type = 'frame';
+                        await webchat.authenticateGuest();
+                        await webchat.render({ type, containerEl });
+                    } catch (error) {
+                        console.error(error);
+                    }
+                };
+            } catch (error) {
+                console.error(error);
+            }
+        })();
+    </script>
+
+</body>
