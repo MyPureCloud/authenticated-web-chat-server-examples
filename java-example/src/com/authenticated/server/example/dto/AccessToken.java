@@ -1,4 +1,4 @@
-package com.authenticated.server.example;
+package com.authenticated.server.example.dto;
 
 public class AccessToken {
     private String access_token;

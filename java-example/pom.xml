@@ -3,14 +3,19 @@
     <groupId>com.authenticate.server</groupId>
     <artifactId>example</artifactId>
     <version>1.0.0</version>
-    
+
     <dependencies>
 
         <!-- https://mvnrepository.com/artifact/com.mypurecloud/platform-client-v2 -->
         <dependency>
             <groupId>com.mypurecloud</groupId>
             <artifactId>platform-client-v2</artifactId>
-            <version>28.0.0</version>
+            <version>30.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.0</version>
         </dependency>
 
     </dependencies>
