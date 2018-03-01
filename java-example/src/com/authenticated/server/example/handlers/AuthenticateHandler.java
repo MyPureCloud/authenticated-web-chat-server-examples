@@ -50,7 +50,6 @@ public class AuthenticateHandler implements HttpHandler {
         
         ObjectMapper objectMapper = new ObjectMapper();
         AccessToken token = objectMapper.readValue(tokenData, AccessToken.class);
-        
         HttpResponse jwtResponse = getJwtFromPureCloud(token);
         String jwtData;
         try {
