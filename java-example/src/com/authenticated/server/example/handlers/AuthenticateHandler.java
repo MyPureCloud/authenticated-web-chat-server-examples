@@ -39,32 +39,34 @@ public class AuthenticateHandler implements HttpHandler {
     public void handle(HttpExchange httpExchange) throws IOException {
         HttpResponse tokenResponse = getAccessTokenFromPureCloud();
         String tokenData;
-        
+        BasicResponseHandler basicResponseHandler = new BasicResponseHandler();
+    
         try {
-            tokenData = new BasicResponseHandler().handleResponse(tokenResponse);
-        } catch(HttpResponseException e) {
-            sendResponse(e.getStatusCode(), new ErrorResponse(e.getMessage()), httpExchange);
-            return;
-        }
-        
-        AccessToken token = new ObjectMapper().readValue(tokenData, AccessToken.class);
-        
-        HttpResponse jwtResponse = getJwtFromPureCloud(token);
-        String jwtData;
-        try {
-            jwtData = new BasicResponseHandler().handleResponse(jwtResponse);
+            tokenData = basicResponseHandler.handleResponse(tokenResponse);
         } catch (HttpResponseException e) {
             sendResponse(e.getStatusCode(), new ErrorResponse(e.getMessage()), httpExchange);
             return;
         }
         
-        Jwt jwt = new ObjectMapper().readValue(jwtData, Jwt.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        AccessToken token = objectMapper.readValue(tokenData, AccessToken.class);
+        
+        HttpResponse jwtResponse = getJwtFromPureCloud(token);
+        String jwtData;
+        try {
+            jwtData = basicResponseHandler.handleResponse(jwtResponse);
+        } catch (HttpResponseException e) {
+            sendResponse(e.getStatusCode(), new ErrorResponse(e.getMessage()), httpExchange);
+            return;
+        }
+        
+        Jwt jwt = objectMapper.readValue(jwtData, Jwt.class);
         sendResponse(200, jwt, httpExchange);
     }
     
     private void sendResponse(int statusCode, Object response, HttpExchange httpExchange) throws IOException {
-        
-        String jsonResponse = new Gson().toJson(response);
+        Gson gson = new Gson();
+        String jsonResponse = gson.toJson(response);
         Headers headers = httpExchange.getResponseHeaders();
         headers.add("Access-Control-Allow-Origin", "*");
         headers.add("Content-Type", "application/json");
@@ -98,8 +100,10 @@ public class AuthenticateHandler implements HttpHandler {
         HttpClient httpClient = HttpClientBuilder.create()
                 .setDefaultHeaders(Arrays.asList(contentTypeHeader, authorizationHeader))
                 .build();
-    
-        StringEntity httpEntity = new StringEntity(new Gson().toJson(new AuthenticateBody()), ContentType.APPLICATION_JSON);
+        
+        Gson gson = new Gson();
+        String authenticateJson = gson.toJson(new AuthenticateBody());
+        StringEntity httpEntity = new StringEntity(authenticateJson, ContentType.APPLICATION_JSON);
         
         HttpPost httpPost = new HttpPost("/api/v2/signeddata");
         httpPost.setEntity(httpEntity);
@@ -120,20 +124,20 @@ public class AuthenticateHandler implements HttpHandler {
          */
         Header contentTypeHeader = new BasicHeader("Content-Type", "application/x-www-form-urlencoded");
         Header authorizationHeader = new BasicHeader("Authorization", "Basic " + getAuthEncoding());
-    
+        
         HttpClient httpClient = HttpClientBuilder.create()
                 .setDefaultHeaders(Arrays.asList(contentTypeHeader, authorizationHeader))
                 .build();
-    
+        
         HttpPost httpPost = new HttpPost("/oauth/token");
-    
+        
         List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair("grant_type", "client_credentials"));
         httpPost.setEntity(new UrlEncodedFormEntity(nvps));
         httpPost.addHeader(authorizationHeader);
-    
+        
         HttpHost httpHost = HttpHost.create("https://login.mypurecloud.com");
-    
+        
         //Make api call and get response body
         return httpClient.execute(httpHost, httpPost);
     }
