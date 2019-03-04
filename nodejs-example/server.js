@@ -28,17 +28,34 @@ async function createServer () {
     console.log(`listening ${listenPort}`);
 }
 
-async function getUserInformation() {
-    // TODO ensure user is logged in
+
+async function getUserInformation(clientToken) {
+    // TODO ensure user is logged in, e.g. validate a client token and retrieve user details
+    let userEmail;
+    if (clientToken) {
+        userEmail = 'joe.customer@example.com'
+    } else {
+        throw new Error('No client token provided');
+    }
+
     return {
         // TODO add user information that you want to pass to the agent eg account-id, full-name
-        authorized: true
+        authorized: true,
+        userEmail
     };
 }
 
 function setupRoutes (router) {
     router.get('/get-jwt', async (ctx) => {
-        const userInformation = await getUserInformation() // TODO ensure the user is authenticated
+        let userInformation;
+        // TODO data used for authentication comes in on the request headers
+        const clientToken = ctx.get('Client-Token');
+        try {
+            userInformation = await getUserInformation(clientToken); // TODO ensure the user is authenticated
+        } catch (error) {
+            ctx.throw(400, error.message);
+            return;
+        }
 
         console.log('/get-jwt request');
         const {jwt} = await getSignature({userInformation});
