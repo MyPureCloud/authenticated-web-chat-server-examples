@@ -31,9 +31,10 @@ async function createServer () {
 
 async function getUserInformation(clientToken) {
     // TODO ensure user is logged in, e.g. validate a client token and retrieve user details
-    let userEmail;
+    let firstName, lastName;
     if (clientToken) {
-        userEmail = 'joe.customer@example.com'
+        firstName = 'John';
+        lastName = 'Doe';
     } else {
         throw new Error('No client token provided');
     }
@@ -41,7 +42,8 @@ async function getUserInformation(clientToken) {
     return {
         // TODO add user information that you want to pass to the agent eg account-id, full-name
         authorized: true,
-        userEmail
+        firstName,
+        lastName
     };
 }
 
