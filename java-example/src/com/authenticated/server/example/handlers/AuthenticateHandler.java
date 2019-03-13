@@ -47,10 +47,23 @@ public class AuthenticateHandler implements HttpHandler {
             sendResponse(e.getStatusCode(), new ErrorResponse(e.getMessage()), httpExchange);
             return;
         }
+
+        // TODO: Validate client token and fetch data to display to agent
+        Headers requestHeaders = httpExchange.getRequestHeaders();
+        String clientToken = requestHeaders.getFirst("Client-Token");
+
+        AuthenticateBody authenticateBody = new AuthenticateBody();
+        if (clientToken != null && !clientToken.isEmpty()) {
+            authenticateBody.setFirstName("John");
+            authenticateBody.setLastName("Doe");
+        } else {
+            sendResponse(400, new ErrorResponse("No client token submitted"), httpExchange);
+            return;
+        }
         
         ObjectMapper objectMapper = new ObjectMapper();
         AccessToken token = objectMapper.readValue(tokenData, AccessToken.class);
-        HttpResponse jwtResponse = getJwtFromPureCloud(token);
+        HttpResponse jwtResponse = getJwtFromPureCloud(token, authenticateBody);
         String jwtData;
         try {
             jwtData = basicResponseHandler.handleResponse(jwtResponse);
@@ -88,7 +101,7 @@ public class AuthenticateHandler implements HttpHandler {
      * @return - the {@link HttpResponse} from the request to PureCloud
      * @throws IOException - not handling the error here
      */
-    private HttpResponse getJwtFromPureCloud(AccessToken accessToken) throws IOException {
+    private HttpResponse getJwtFromPureCloud(AccessToken accessToken, AuthenticateBody body) throws IOException {
         
         HttpHost httpHost = HttpHost.create("https://api.mypurecloud.com");
         
@@ -101,7 +114,7 @@ public class AuthenticateHandler implements HttpHandler {
                 .build();
         
         Gson gson = new Gson();
-        String authenticateJson = gson.toJson(new AuthenticateBody());
+        String authenticateJson = gson.toJson(body);
         StringEntity httpEntity = new StringEntity(authenticateJson, ContentType.APPLICATION_JSON);
         
         HttpPost httpPost = new HttpPost("/api/v2/signeddata");
@@ -123,20 +136,20 @@ public class AuthenticateHandler implements HttpHandler {
          */
         Header contentTypeHeader = new BasicHeader("Content-Type", "application/x-www-form-urlencoded");
         Header authorizationHeader = new BasicHeader("Authorization", "Basic " + getAuthEncoding());
-        
+
         HttpClient httpClient = HttpClientBuilder.create()
                 .setDefaultHeaders(Arrays.asList(contentTypeHeader, authorizationHeader))
                 .build();
         
         HttpPost httpPost = new HttpPost("/oauth/token");
-        
+
         List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair("grant_type", "client_credentials"));
         httpPost.setEntity(new UrlEncodedFormEntity(nvps));
         httpPost.addHeader(authorizationHeader);
-        
+
         HttpHost httpHost = HttpHost.create("https://login.mypurecloud.com");
-        
+
         //Make api call and get response body
         return httpClient.execute(httpHost, httpPost);
     }
