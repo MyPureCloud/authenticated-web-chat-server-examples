@@ -1,6 +1,6 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.authenticate.server</groupId>
+    <groupId>com.authenticated.server</groupId>
     <artifactId>example</artifactId>
     <version>1.0.0</version>
 
@@ -19,4 +19,54 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+      <sourceDirectory>src</sourceDirectory>
+      <resources>
+        <resource>
+          <directory>src</directory>
+          <excludes>
+            <exclude>**/*.java</exclude>
+          </excludes>
+        </resource>
+      </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <mainClass>com.authenticated.server.example.Server</mainClass>
+                </configuration>
+            </plugin>
+
+            <plugin>
+              <artifactId>maven-assembly-plugin</artifactId>
+              <configuration>
+                <archive>
+                  <manifest>
+                    <mainClass>com.authenticated.server.example.Server</mainClass>
+                  </manifest>
+                </archive>
+                <descriptorRefs>
+                  <descriptorRef>jar-with-dependencies</descriptorRef>
+                </descriptorRefs>
+              </configuration>
+              <executions>
+                <execution>
+                  <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                  <phase>package</phase> <!-- bind to the packaging phase -->
+                  <goals>
+                    <goal>single</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <properties>
+      <maven.compiler.target>1.8</maven.compiler.target>
+      <maven.compiler.source>1.8</maven.compiler.source>
+    </properties>
 </project>
+
